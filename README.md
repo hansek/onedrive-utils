@@ -2,6 +2,8 @@
 
 Basic utils using https://github.com/OneDrive/onedrive-sdk-python
 
+OneDrive API documentation: https://dev.onedrive.com
+
 ## Auth
 
 - Create an app in https://apps.dev.microsoft.com/
