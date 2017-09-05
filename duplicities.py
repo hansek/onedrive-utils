@@ -21,10 +21,7 @@ if len(sys.argv) < 2:
 
 onedrive_folder = sys.argv[1]
 
-collection = utils.get_collection_by_path(onedrive_folder)
-
-for collection_item in collection:
-    utils.check_duplicities(collection_item)
+utils.iterate_all_pages_and_do_stuff(onedrive_folder=onedrive_folder, func=utils.check_duplicities)
 
 pp = pprint.PrettyPrinter(indent=4)
 

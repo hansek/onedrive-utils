@@ -61,8 +61,7 @@ class Util:
         if item.folder:
             self.item_print('{name}/', item)
 
-            for child in self.get_collection_by_id(item.id):
-                self.check_duplicities(child)
+            self.iterate_all_pages_and_do_stuff(onedrive_id=item.id, func=self.list)
 
         elif item.file:
             if item.name in self.files:
