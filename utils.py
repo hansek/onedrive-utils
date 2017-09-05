@@ -36,7 +36,7 @@ class Util:
         if item.folder:
             self.item_print('{name}/', item)
 
-            self.iterate_all_pages_and_do_stuff(onedrive_id=item.id, func=self.list)
+            self.iterate_all_pages_and_do_stuff(onedrive_id=item.id, func=self.download)
 
         elif item.file:
             target_folder = './{}'.format(
@@ -45,6 +45,11 @@ class Util:
                 )
             )
             target_file = '/'.join([target_folder, urllib.request.unquote(item.name)])
+
+            if os.path.exists(target_file):
+                self.print('Skipping ' + target_file, item)
+
+                return
 
             if not os.path.exists(target_folder):
                 os.makedirs(target_folder)
@@ -61,7 +66,7 @@ class Util:
         if item.folder:
             self.item_print('{name}/', item)
 
-            self.iterate_all_pages_and_do_stuff(onedrive_id=item.id, func=self.list)
+            self.iterate_all_pages_and_do_stuff(onedrive_id=item.id, func=self.check_duplicities)
 
         elif item.file:
             if item.name in self.files:
