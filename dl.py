@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from auth import authenticate_and_get_client
 from utils import Util
 
