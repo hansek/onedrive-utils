@@ -10,6 +10,12 @@ OneDrive API documentation: https://dev.onedrive.com
 - Get **Client ID** and **Secret** from this app and set them as environment variables `CLIENT_ID` and `CLIENT_SECRET`
 - Add URL for redirect `http://localhost:8080/`
 
+### Virtualenv bin/postactivate sample
+```
+export CLIENT_ID=??????
+export CLIENT_SECRET=??????
+```
+
 ## Scripts
 
 Eg. `python list.py "/Parent Folder/Subfolder"`
