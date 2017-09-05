@@ -1,9 +1,15 @@
 import urllib
 
 import os
+from onedrivesdk.request.children_collection import ChildrenCollectionRequest
+
 
 class Util:
     client = None
+
+    request_options = {
+        # 'top': 200  # limit of children per request by API
+    }
 
     files = {}
 
@@ -13,16 +19,14 @@ class Util:
         super().__init__()
 
 
-    def do_something(self, item):
+    def list(self, item):
         if item.folder:
             self.item_print('{name}/', item)
 
-            for child in self.get_collection_by_id(item.id):
-                self.do_something(child)
+            self.iterate_all_pages_and_do_stuff(onedrive_id=item.id, func=self.list)
 
         elif item.file:
-            return
-            # self.item_print('  - {name}', item)
+            self.item_print('  - {name}', item)
 
         else:
             self.item_print('*** {name}', item)
@@ -91,10 +95,33 @@ class Util:
 
 
     def get_collection_by_id(self, item_id):
-        return self.client.item(drive='me', id=item_id).children.get()
+        return self.client.item(drive='me', id=item_id).children.request(**self.request_options).get()
 
     def get_collection_by_path(self, item_path):
-        return self.client.item(drive='me', path=item_path).children.get()
+        return self.client.item(drive='me', path=item_path).children.request(**self.request_options).get()
+
+    def iterate_all_pages_and_do_stuff(self, onedrive_folder=None, onedrive_id=None, func=None):
+        if onedrive_folder:
+            collection = self.get_collection_by_path(onedrive_folder)
+        elif onedrive_id:
+            collection = self.get_collection_by_id(onedrive_id)
+        else:
+            raise Exception('Bubububu')
+
+        page = 1
+
+        while True:
+            # print('\nPAGE {}'.format(page))
+
+            for item in collection:
+                func(item)
+
+            if hasattr(collection, '_next_page_link'):
+                collection = ChildrenCollectionRequest.get_next_page_request(collection, self.client, self.request_options).get()
+
+                page += 1
+            else:
+                break
 
     def item_print(self, format_string, item):
         self.print(format_string.format(
