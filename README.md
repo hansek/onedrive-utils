@@ -7,7 +7,7 @@ OneDrive API documentation: https://dev.onedrive.com
 ## Auth
 
 - Create an app in https://apps.dev.microsoft.com/
-- Get Client ID and Secret from this app
+- Get **Client ID** and **Secret** from this app and set them as environment variables `CLIENT_ID` and `CLIENT_SECRET`
 - Add URL for redirect `http://localhost:8080/`
 
 ## Scripts
