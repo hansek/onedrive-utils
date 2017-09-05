@@ -1,3 +1,4 @@
+import argparse
 import urllib
 
 import os
@@ -6,6 +7,10 @@ from onedrivesdk.request.children_collection import ChildrenCollectionRequest
 
 class Util:
     client = None
+
+    args = argparse.Namespace
+
+    depth = 0
 
     request_options = {
         # 'top': 200  # limit of children per request by API
@@ -16,17 +21,22 @@ class Util:
     def __init__(self, client) -> None:
         self.client = client
 
+        self.parse_args()
+
         super().__init__()
 
 
     def list(self, item):
         if item.folder:
-            self.item_print('{name}/', item)
+            self.item_print('/{name}/', item)
 
-            self.iterate_all_pages_and_do_stuff(onedrive_id=item.id, func=self.list)
+            if not self.args.depth or self.depth < self.args.depth:
+                self.iterate_all_pages_and_do_stuff(onedrive_id=item.id, func=self.list)
+
+                self.depth -= 1
 
         elif item.file:
-            self.item_print('  - {name}', item)
+            self.item_print('- {name}', item)
 
         else:
             self.item_print('*** {name}', item)
@@ -34,7 +44,7 @@ class Util:
 
     def download(self, item):
         if item.folder:
-            self.item_print('{name}/', item)
+            self.item_print('/{name}/', item)
 
             self.iterate_all_pages_and_do_stuff(onedrive_id=item.id, func=self.download)
 
@@ -47,7 +57,7 @@ class Util:
             target_file = '/'.join([target_folder, urllib.request.unquote(item.name)])
 
             if os.path.exists(target_file) and os.path.getsize(target_file) == item.size:
-                self.print('Skipping {} already exists'.format(target_file), item)
+                self.print('Skipping {}, file already exists with same size'.format(target_file), item)
 
                 return
 
@@ -64,7 +74,7 @@ class Util:
 
     def check_duplicities(self, item):
         if item.folder:
-            self.item_print('{name}/', item)
+            self.item_print('/{name}/', item)
 
             self.iterate_all_pages_and_do_stuff(onedrive_id=item.id, func=self.check_duplicities)
 
@@ -104,12 +114,14 @@ class Util:
         return self.client.item(drive='me', path=item_path).children.request(**self.request_options).get()
 
     def iterate_all_pages_and_do_stuff(self, onedrive_folder=None, onedrive_id=None, func=None):
+        self.depth += 1
+
         if onedrive_folder:
             collection = self.get_collection_by_path(onedrive_folder)
         elif onedrive_id:
             collection = self.get_collection_by_id(onedrive_id)
         else:
-            raise Exception('Bubububu')
+            collection = self.get_collection_by_path(self.args.path)
 
         page = 1
 
@@ -132,7 +144,20 @@ class Util:
         ), item)
 
     def print(self, string, item):
-        print('{string} [{size}]'.format(
+        print('{indent}{string} [{size}]'.format(
+            indent = '    ' * (self.depth - 1),
             string = string,
             size = self.human_readable_size(item.size)
         ))
+
+    def parse_args(self):
+        parser = argparse.ArgumentParser(description='Process some integers.')
+
+        parser.add_argument('path', metavar='<path>', type=str,
+                            help='Path in OneDrive folder structure'
+        )
+
+        parser.add_argument('--depth', dest='depth', action='store', type=int,
+                            help='Level for traversing folders')
+
+        self.args = parser.parse_args()
