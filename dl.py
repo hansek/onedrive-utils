@@ -25,7 +25,4 @@ if response != 'y':
     print('Exiting....')
     exit()
 
-items = client.item(drive='me', path=onedrive_folder).children.get()
-
-for i in items:
-    utils.download(i)
+utils.iterate_all_pages_and_do_stuff(onedrive_folder=onedrive_folder, func=utils.download)
