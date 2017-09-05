@@ -26,5 +26,10 @@ Eg. `python list.py "/Parent Folder/Subfolder"`
 ### duplicates.py <path>
 - Check duplicates for given path
 
-### list.py <path>
+### list.py <path> --depth=?
 - List folders for given path
+
+#### args
+**--depth=?** *(default = 0)*
+- ? can be number from 1 to N
+- ? = 0 is indefinitely
