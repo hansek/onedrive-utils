@@ -46,15 +46,15 @@ class Util:
             )
             target_file = '/'.join([target_folder, urllib.request.unquote(item.name)])
 
-            if os.path.exists(target_file):
-                self.print('Skipping ' + target_file, item)
+            if os.path.exists(target_file) and os.path.getsize(target_file) == item.size:
+                self.print('Skipping {} already exists'.format(target_file), item)
 
                 return
 
             if not os.path.exists(target_folder):
                 os.makedirs(target_folder)
 
-            self.print(target_file, item)
+            self.print('Downloading {} ...'.format(target_file), item)
 
             self.client.item(drive='me', id=item.id).download(target_file)
 
