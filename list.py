@@ -7,4 +7,6 @@ client = authenticate_and_get_client()
 
 utils = Util(client)
 
-utils.iterate_all_pages_and_do_stuff(onedrive_folder=None, func=utils.list)
+utils.iterate_over_folders_list(
+    func=utils.list
+)

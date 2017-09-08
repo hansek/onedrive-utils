@@ -12,6 +12,9 @@ class Util:
 
     depth = 0
 
+    folders_from = None
+    folders_list = []
+
     request_options = {
         # 'top': 200  # limit of children per request by API
     }
@@ -23,6 +26,8 @@ class Util:
 
         self.parse_args()
 
+        self.process_args()
+
         super().__init__()
 
 
@@ -32,8 +37,6 @@ class Util:
 
             if not self.args.depth or self.depth < self.args.depth:
                 self.iterate_all_pages_and_do_stuff(onedrive_id=item.id, func=self.list)
-
-                self.depth -= 1
 
         elif item.file:
             self.item_print('- {name}', item)
@@ -113,6 +116,25 @@ class Util:
     def get_collection_by_path(self, item_path):
         return self.client.item(drive='me', path=item_path).children.request(**self.request_options).get()
 
+    def iterate_over_folders_list(self, func):
+        if self.folders_list:
+            for folder in self.folders_list:
+                # only for download
+                if func == self.download and not self.args.yes_to_all:
+                    response = input('Going to download: {}, are you sure? [y/...] '.format(
+                        self.human_readable_size(
+                            self.client.item(drive='me', path=folder).get().size
+                        )
+                    ))
+
+                    if response != 'y':
+                        print('Exiting....')
+                        exit()
+
+                self.iterate_all_pages_and_do_stuff(onedrive_folder=folder, func=func)
+
+                self.depth -= 2
+
     def iterate_all_pages_and_do_stuff(self, onedrive_folder=None, onedrive_id=None, func=None):
         self.depth += 1
 
@@ -120,8 +142,10 @@ class Util:
             collection = self.get_collection_by_path(onedrive_folder)
         elif onedrive_id:
             collection = self.get_collection_by_id(onedrive_id)
-        else:
+        elif self.args.path:
             collection = self.get_collection_by_path(self.args.path)
+        else:
+            raise Exception('No path specified')
 
         page = 1
 
@@ -138,6 +162,8 @@ class Util:
             else:
                 break
 
+        self.depth -= 1
+
     def item_print(self, format_string, item):
         self.print(format_string.format(
             name=item.name,
@@ -153,11 +179,26 @@ class Util:
     def parse_args(self):
         parser = argparse.ArgumentParser(description='Process some integers.')
 
-        parser.add_argument('path', metavar='<path>', type=str,
+        parser.add_argument('path', metavar='<path>', type=str, nargs='?',
                             help='Path in OneDrive folder structure'
         )
 
         parser.add_argument('--depth', dest='depth', action='store', type=int,
                             help='Level for traversing folders')
 
+        parser.add_argument('--yes-to-all', dest='yes_to_all', action='store', type=bool,
+                            help='Don\'t ask for agreement')
+
+        parser.add_argument('--folders-from', dest='folders_from', action='store', type=str,
+                            help='File path with list of folders (each on new line)')
+
         self.args = parser.parse_args()
+
+    def process_args(self):
+        # folders from
+        if self.args.folders_from and os.path.exists(self.args.folders_from):
+            with open(self.args.folders_from, encoding='utf-8') as f:
+                for line in f.readlines():
+                    self.folders_list.append(line.rstrip('\n'))
+        elif self.args.path:
+            self.folders_list.append(self.args.path)

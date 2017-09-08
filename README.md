@@ -16,20 +16,32 @@ export CLIENT_ID=??????
 export CLIENT_SECRET=??????
 ```
 
-## Scripts
+## Command line usage
 
 Eg. `python list.py "/Parent Folder/Subfolder"`
 
-### dl.py <path>
-- Download all folders, subfoldres and files for given path
+### General args
 
-### duplicates.py <path>
-- Check duplicates for given path
+#### --folders-from=? *(default = '')*
+- path to file containing list of folders on OneDrive
+- each folder on new line
 
-### list.py <path> --depth=?
-- List folders for given path
-
-#### args
-**--depth=?** *(default = 0)*
+#### --depth=? *(default = 0)*
 - ? can be number from 1 to N
 - ? = 0 is indefinitely
+
+#### --yes-to-all=? *(default = False)*
+- ? can be `true` or `1` to do not ask about agreement with some action
+
+### Scripts
+
+#### dl.py <path>
+- Download all folders, subfoldres and files for given path
+
+
+#### duplicates.py <path>
+- Check duplicates for given path
+
+
+#### list.py <path> --depth=?
+- List folders for given path

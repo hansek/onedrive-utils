@@ -13,7 +13,9 @@ utils = Util(client)
 
 t0 = time.time()
 
-utils.iterate_all_pages_and_do_stuff(onedrive_folder=None, func=utils.check_duplicities)
+utils.iterate_over_folders_list(
+    func=utils.check_duplicities
+)
 
 pp = pprint.PrettyPrinter(indent=4)
 
