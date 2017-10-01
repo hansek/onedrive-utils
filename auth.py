@@ -21,8 +21,10 @@ def authenticate_and_get_client():
         client_id=client_id,
         scopes=scopes)
 
+    session_path = os.path.expanduser('~/.onedrive-utils.session.pickle')
+
     try:
-        auth_provider.load_session()
+        auth_provider.load_session(path=session_path)
 
         auth_provider.refresh_token()
 
@@ -39,6 +41,6 @@ def authenticate_and_get_client():
 
         client.auth_provider.authenticate(code, redirect_uri, client_secret)
 
-        auth_provider.save_session()
+        auth_provider.save_session(path=session_path)
 
     return client
